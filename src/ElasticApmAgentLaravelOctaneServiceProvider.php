@@ -2,6 +2,7 @@
 
 namespace Cego\ElasticApmAgentLaravel;
 
+use GenericInstrumenter;
 use Illuminate\Contracts\Http\Kernel;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Contracts\Container\BindingResolutionException;
@@ -16,6 +17,21 @@ class ElasticApmAgentLaravelOctaneServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
+        $this->genericAutoInstrumentation('cache', 'cache');
+        $this->genericAutoInstrumentation('redis', 'redis');
+    }
+
+    /**
+     * Adds generic auto instrumentation to a given object in the app
+     *
+     * @param string $key
+     * @param string $type
+     *
+     * @return void
+     */
+    private function genericAutoInstrumentation(string $key, string $type): void
+    {
+        $this->app->extend($key, fn ($object) => new GenericInstrumenter($object, $type));
     }
 
     /**
